@@ -70,9 +70,9 @@ zettelmaker:
 snakemake *args:
     uv run snakemake {% raw %}{{args}}{% endraw %}
 
-# Create a new lecture folder
-create-lecture:
-    uv run python .zetteldev/create_lecture.py
+# Create a new lecture folder (pass name as argument, e.g.: just create-lecture intro-to-rl)
+create-lecture *args:
+    uv run python .zetteldev/create_lecture.py {% raw %}{{args}}{% endraw %}
 
 # === Claude Code ===
 
