@@ -1,0 +1,9 @@
+{
+  "course_name": "My Course",
+  "project_slug": "{{ cookiecutter.course_name.lower().replace(' ', '_').replace('-', '_') }}",
+  "project_description": "Coursework notebook + study workspace",
+  "author": "Kincaid MacDonald",
+  "github": "professorwug",
+  "email": "hey@kincaid.ink",
+  "_copy_without_render": [".zetteldev"]
+}

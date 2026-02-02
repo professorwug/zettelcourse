@@ -1,0 +1,157 @@
+# Zetteldev project task runner
+# Run `just` to see available commands
+
+default:
+    @just --list
+
+# === Development ===
+
+# Run pytest
+test:
+    uv run --group dev pytest
+
+# Install ipykernel for this project
+postinstall:
+    uv run python -m ipykernel install --user --name "{{ cookiecutter.project_slug }}-zetteldev"
+
+# Verify the project module imports correctly
+test-import:
+    uv run python -c "import {{ cookiecutter.project_slug }}"
+
+# === Notebooks ===
+
+# Launch Jupyter Lab
+notebooks:
+    uv run --group notebooks jupyter lab --ip=0.0.0.0
+
+# Launch Jupyter Notebook (CUDA environment)
+cuda-jupyter:
+    uv run --group notebooks jupyter notebook
+
+# === Marimo ===
+
+# Launch Marimo in edit mode
+marimo-edit:
+    uv run --group marimo marimo edit --watch --headless --port 8642 --token-password themediumisthemessage --proxy athomia.moose-walleye.ts.net --base-url /marimo
+
+# Launch Marimo in run mode
+marimo-run:
+    uv run --group marimo marimo run --headless --port 8642 --token-password themediumisthemessage --proxy athomia.moose-walleye.ts.net --base-url /marimo
+
+# === NBdev ===
+
+# Render a Jupyter notebook to PDF (strips NBDev directives first)
+render-notebook input output:
+    uv run python .zetteldev/render_notebook.py {% raw %}{{input}}{% endraw %} {% raw %}{{output}}{% endraw %}
+
+# Export notebooks to Python modules
+nbsync:
+    uv run --group nbdev nbdev_export
+
+# Clean notebook metadata
+nbclean:
+    uv run --group nbdev nbdev_clean
+
+# Update notebooks from Python modules
+pysync:
+    uv run --group nbdev nbdev_update
+
+# Generate documentation
+docmaker:
+    uv run --group nbdev nbdev_docs
+
+# Render notebooks to zettels (markdown)
+zettelmaker:
+    uv run --group nbdev quarto render nbs/lectures --to gfm --no-execute --output-dir ../zettels --profile zettels
+
+# === Lectures ===
+
+# Run snakemake (pass args like: just snakemake all)
+snakemake *args:
+    uv run snakemake {% raw %}{{args}}{% endraw %}
+
+# Create a new lecture folder
+create-lecture:
+    uv run python .zetteldev/create_lecture.py
+
+# === Claude Code ===
+
+# Start Claude with lecture-specific task list (auto-detects from cwd)
+# Pass any args to claude, e.g.: just claude --resume
+claude *args:
+    #!/usr/bin/env bash
+    invocation_dir="{% raw %}{{invocation_directory()}}{% endraw %}"
+    if [[ "$invocation_dir" =~ lectures/([^/]+) ]]; then
+        task_id="{{ cookiecutter.project_slug }}-${BASH_REMATCH[1]}"
+        echo "Task list: $task_id"
+        CLAUDE_CODE_TASK_LIST_ID="$task_id" claude --dangerously-skip-permissions {% raw %}{{args}}{% endraw %}
+    else
+        echo "Starting Claude without persistent task list (not in lecture dir)"
+        claude --dangerously-skip-permissions {% raw %}{{args}}{% endraw %}
+    fi
+
+# === Cloud Sync ===
+
+# Sync data to cloud storage
+sync-to-cloud:
+    uv run python .zetteldev/sync_cloud_data.py sync-to-cloud
+
+# Sync data from cloud storage
+sync-from-cloud:
+    uv run python .zetteldev/sync_cloud_data.py sync-from-cloud
+
+# === Hugging Face Data Storage ===
+
+# Manage lecture data on Hugging Face
+# Usage:
+#   just hugdata status              - show sync status for all lectures
+#   just hugdata push <lecture>      - push lecture to HF (versioned snapshot)
+#   just hugdata pull <path>         - pull from HF (supports subdirs)
+#   just hugdata pull --all          - pull all lectures
+#   just hugdata init                - initialize HF repo connection
+hugdata action *args:
+    uv run python .zetteldev/hf_data.py {% raw %}{{action}}{% endraw %} {% raw %}{{args}}{% endraw %}
+
+# Push all local-only and ahead lectures to HF
+hugdata-pushitall:
+    uv run python .zetteldev/hf_data.py pushall
+
+# === Zetteldev Container ===
+
+# Update zetteldev assets
+zdev-update:
+    bash .zetteldev/update_zetteldev_assets.sh
+
+# Start a shell in the zdev container
+zdev-shell:
+    bash .zetteldev/zdev-container.sh shell
+
+# Start Claude in the zdev container
+zdev-claude:
+    bash .zetteldev/zdev-container.sh claude
+
+# Start Codex in the zdev container
+zdev-codex:
+    bash .zetteldev/zdev-container.sh codex
+
+# Stop the zdev shell container
+zdev-stop-shell:
+    bash .zetteldev/zdev-container.sh stop shell
+
+# Remove the zdev shell container
+zdev-rm-shell:
+    bash .zetteldev/zdev-container.sh rm shell
+
+# === Git Worktrees ===
+
+# Create a new git worktree
+pug:
+    bash .zetteldev/new_git_worktree.sh
+
+# Review a git worktree
+rug:
+    bash .zetteldev/review_worktree.sh
+
+# Lazygit
+lg:
+    lazygit

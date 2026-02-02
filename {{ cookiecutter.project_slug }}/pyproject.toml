@@ -1,0 +1,104 @@
+[project]
+name="{{ cookiecutter.project_slug }}"
+version = "0.1.0"
+description = "{{ cookiecutter.project_description }} for {{ cookiecutter.course_name }}"
+readme = "README.md"
+requires-python=">=3.11,<3.14"
+dependencies = [
+    # Core ML stack
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
+    "jax[cuda12]>=0.4.30,<0.5",
+    "numpy>=1.26.0,<2.0",
+    "scipy>=1.14.0",
+    "scikit-learn>=1.5.0",
+
+    # Deep learning
+    "transformers>=4.40.0",
+    "accelerate>=0.30.0",
+    "datasets>=4.4.1",
+    "sentence-transformers>=2.7.0",
+
+    # Data processing
+    "pandas>=2.3.3",
+    "polars>=1.36.1",
+    "duckdb>=1.4.3",
+
+    # Visualization
+    "matplotlib>=3.10.8",
+    "seaborn>=0.13.2",
+    "plotly>=6.5.0",
+    "great-tables>=0.20.0",
+
+    # Notebooks
+    "ipykernel>=7.1.0",
+    "jupyter>=1.1.1",
+    "jupyterlab>=4.5.0",
+    "marimo>=0.18.4",
+    "notebook>=7.5.0",
+    "nbformat>=5.10.4",
+    "nbdev>=2.4.6",
+
+    # PDF processing
+    "pymupdf>=1.26.6",
+
+    # Utilities
+    "fastcore>=1.8.17",
+    "fastprogress>=1.0.3",
+    "python-dotenv>=1.2.1",
+    "questionary>=2.1.1",
+    "rich>=14.2.0",
+    "tqdm>=4.67.1",
+    "typer>=0.20.0",
+
+    # Workflow
+    "snakemake>=9.14.4",
+    "huggingface-hub>=1.2.2",
+
+    # Course specific (add more as needed)
+    "networkx>=3.6.1",
+    "sympy>=1.14.0",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
+notebooks = [
+    "jupyter",
+    "jupyterlab",
+]
+marimo = [
+    "marimo",
+]
+nbdev = [
+    "nbdev",
+    "quarto",
+]
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.uv]
+prerelease = "allow"
+
+[tool.uv.sources]
+torch = [
+  { index = "{{ cookiecutter.project_slug }}", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name="{{ cookiecutter.project_slug }}"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
