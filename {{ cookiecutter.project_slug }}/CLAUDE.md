@@ -17,6 +17,7 @@ The user should tell you which phase you are operating within; if not, infer fro
 
 1. **You will be given the name of a PDF file with lecture notes.** Find this file in the lecture folder or `~/Drive/onyx/NoteMax/Notebooks`. **Read the entire thing.** The PDF will contain class notes, diagrams, and key concepts.
    - First, exactly transcribe the lecture content into a new jupyter notebook titled `study.ipynb`.
+   - **Use one cell per paragraph or concept** — keep cells small and focused for easy navigation and editing
    - Organize by topic with clear markdown headers
    - Recreate diagrams and visualizations in code where applicable
    - Add clarifying explanations and examples
